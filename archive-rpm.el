@@ -134,7 +134,8 @@ assumed to be empty."
       (insert payload)
       (unless (zlib-decompress-region (point-min) (point-max))
         (error "Zlib decompression failed")))
-     ((equal "xz" payload-compressor)
+     ;; Not sure why it's either "xz" or "lzma", but xz seems to understand both
+     ((member payload-compressor '("xz" "lzma"))
       (insert payload)
       (let ((exit-code (call-process-region
                         (point-min) (point-max)

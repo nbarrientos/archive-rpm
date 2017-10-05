@@ -132,17 +132,22 @@ ARCHIVE-BUFFER is nil."
                    (equal name "TRAILER!!!"))
               ;; Last entry in archive: go to end
               (goto-char (point-max))
-            (let ((text
-                   (format "  %s %8.0f %10d/%-10d %s%s"
-                           (archive-cpio--parse-mode mode)
-                           filesize
-                           uid
-                           gid
-                           name
-                           (if (= (logand #o170000 mode) #o120000) ;Symlink
-                               (concat " -> " (buffer-substring filebeg (+ filebeg filesize)))
-                             ""))))
-              (push (vector text (- (length text) namesize) (length text)) visual)
+            ;; Building this in two parts, since we need to know in
+            ;; which column the file name starts.
+            (let* ((text-a
+                    (format "  %s %8.0f %10d/%-10d "
+                            (archive-cpio--parse-mode mode)
+                            filesize
+                            uid
+                            gid))
+                   (text-b
+                    (format "%s%s"
+                            name
+                            (if (= (logand #o170000 mode) #o120000) ;Symlink
+                                (concat " -> " (buffer-substring filebeg (+ filebeg filesize)))
+                              "")))
+                   (text (concat text-a text-b)))
+              (push (vector text (length text-a) (length text)) visual)
               (push (vector name name nil mode filebeg) files)))
           (goto-char next)))))
     (with-current-buffer (or archive-buffer (current-buffer))

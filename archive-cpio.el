@@ -133,16 +133,15 @@ ARCHIVE-BUFFER is nil."
               ;; Last entry in archive: go to end
               (goto-char (point-max))
             (let ((text
-                   (format "  %s %8.0f %10d/%-10d %s"
+                   (format "  %s %8.0f %10d/%-10d %s%s"
                            (archive-cpio--parse-mode mode)
                            filesize
                            uid
                            gid
-                           ;; (if (= (logand #o170000 mode) #o120000) ;Symlink
-                           ;;     ;; XXX
-                           ;;     " -> "
-                           ;;   "")
-                           name)))
+                           name
+                           (if (= (logand #o170000 mode) #o120000) ;Symlink
+                               (concat " -> " (buffer-substring filebeg (+ filebeg filesize)))
+                             ""))))
               (push (vector text (- (length text) namesize) (length text)) visual)
               (push (vector name name nil mode filebeg) files)))
           (goto-char next)))))

@@ -46,6 +46,9 @@ This function is meant to be used as a :before-until advice for
 (with-eval-after-load "arc-mode"
   (advice-add 'archive-find-type :before-until 'archive-rpm-find-type))
 
+;;;###autoload
+(add-to-list 'magic-mode-alist '("\xed\xab\xee\xdb\x03\x00" . archive-mode))
+
 (defconst archive-rpm--header-bindat-spec
   '((:magic              u24)
     (:version            u8)

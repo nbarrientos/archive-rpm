@@ -155,7 +155,9 @@ assumed to be empty."
     (1016 . "Group")
     (1020 . "URL")
     (1021 . "OS")
-    (1022 . "Architecture"))
+    (1022 . "Architecture")
+    (1124 . "Format")
+    (1125 . "Compression"))
   "Fields to output at top of RPM archive buffer.")
 
 (defun archive-rpm--insert-interesting-information (header-entries)

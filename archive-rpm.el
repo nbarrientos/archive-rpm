@@ -137,9 +137,11 @@ assumed to be empty."
      ;; Not sure why it's either "xz" or "lzma", but xz seems to understand both
      ((member payload-compressor '("xz" "lzma"))
       (insert payload)
-      (let ((exit-code (call-process-region
-                        (point-min) (point-max)
-                        "xz" t t nil "-q" "-c" "-d")))
+      (let* ((coding-system-for-write 'no-conversion)
+             (coding-system-for-read 'no-conversion)
+             (exit-code (call-process-region
+                         (point-min) (point-max)
+                         "xz" t t nil "-q" "-c" "-d")))
         (unless (zerop exit-code)
           (error "xz decompression failed: %s" (buffer-string)))))
      (t

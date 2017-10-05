@@ -78,19 +78,11 @@ This function is meant to be called by `archive-summarize'."
   (goto-char (+ 96 (point-min)))
   ;; Skip past the first header, the "signature", which is not
   ;; particularly interesting.
-  (archive-rpm--parse-header)
+  (archive-rpm--parse-header t)
   ;; The second header contains data we're interested in.
-  (let* ((header-entries (archive-rpm--parse-header))
-         (payload-format (archive-rpm--get-header-data 1124 header-entries))
-         (payload-compressor (archive-rpm--get-header-data 1125 header-entries))
+  (let* ((header-entries (archive-rpm--parse-header nil))
          (payload (buffer-substring (point) (point-max)))
          (archive-buffer (current-buffer)))
-    (unless (equal "cpio" payload-format)
-      (error "RPM payload is in `%s', not cpio format" payload-format))
-    (unless (equal "gzip" payload-compressor)
-      (error "RPM payload is compressed with `%s', not gzip" payload-compressor))
-    (unless (zlib-available-p)
-      (error "Zlib not available for RPM payload decompression"))
     ;; Let's insert some interesting information, but in a way that it
     ;; won't get clobbered...
     (save-restriction
@@ -99,9 +91,7 @@ This function is meant to be called by `archive-summarize'."
       (narrow-to-region (point) (point-max))
       (with-temp-buffer
         (set-buffer-multibyte nil)
-        (insert payload)
-        (unless (zlib-decompress-region (point-min) (point-max))
-          (error "Zlib decompression failed"))
+        (archive-rpm--decompress-payload payload header-entries)
         ;; Finally ready to do something with the cpio archive
         (archive-cpio-summarize archive-buffer)))))
 
@@ -119,16 +109,37 @@ This function is meant to be called by `archive-summarize'."
           ;; Find and skip past "lead"
           (search-forward "\xed\xab\xee\xdb\x03\x00")
           (goto-char (+ 96 (match-beginning 0)))
-          (archive-rpm--parse-header)
-          (let* ((_header-entries (archive-rpm--parse-header))
+          (archive-rpm--parse-header t)
+          (let* ((header-entries (archive-rpm--parse-header nil))
                  (payload (buffer-substring (point) (point-max))))
             (with-temp-buffer
-              (set-buffer-multibyte nil)
-              (insert payload)
-              (unless (zlib-decompress-region (point-min) (point-max))
-                (error "Zlib decompression failed"))
+              (archive-rpm--decompress-payload payload header-entries)
               (goto-char (point-min))
               (archive-cpio-extract-from-buffer name (current-buffer) destbuf))))))))
+
+(defun archive-rpm--decompress-payload (payload header-entries)
+  "Decompress PAYLOAD, given the information in HEADER-ENTRIES.
+Insert the decompressed data into the current buffer, which is
+assumed to be empty."
+  (let ((payload-format (archive-rpm--get-header-data 1124 header-entries))
+        (payload-compressor (archive-rpm--get-header-data 1125 header-entries)))
+    (unless (equal "cpio" payload-format)
+      (error "RPM payload is in `%s', not cpio format" payload-format))
+    (set-buffer-multibyte nil)
+    (cond
+     ((equal "gzip" payload-compressor)
+      (insert payload)
+      (unless (zlib-decompress-region (point-min) (point-max))
+        (error "Zlib decompression failed")))
+     ((equal "xz" payload-compressor)
+      (insert payload)
+      (let ((exit-code (call-process-region
+                        (point-min) (point-max)
+                        "xz" t t nil "-q" "-c" "-d")))
+        (unless (zerop exit-code)
+          (error "xz decompression failed: %s" (buffer-string)))))
+     (t
+      (error "Unknown RPM payload compressor `%s'" payload-compressor)))))
 
 (defconst archive-rpm--interesting-fields
   '((1000 . "Name")
@@ -184,8 +195,9 @@ DATA-LEN is the length of the data store."
        ;; Any other type.  Not parsing it, not adding :data.
        index-entry))))
 
-(defun archive-rpm--parse-header ()
-  "Parse RPM header, and return list of index entries."
+(defun archive-rpm--parse-header (align-after)
+  "Parse RPM header, and return list of index entries.
+If ALIGN-AFTER is non-nil, leave point on an 8-byte alignment afterwards."
   (unless (looking-at "\x8e\xad\xe8")
     (error "Incorrect header magic"))
   (let* ((header (bindat-unpack archive-rpm--header-bindat-spec
@@ -206,10 +218,12 @@ DATA-LEN is the length of the data store."
                            index-entry data-starts-at data-len))
         (push index-entry index-entries)
         (forward-char 16)))
-    ;; Skip past data store, and past any padding for 8-byte alignment
-    (forward-char (if (zerop (% data-len 8))
-                      data-len
-                    (+ data-len (- 8 (% data-len 8)))))
+    ;; Skip past data store
+    (forward-char data-len)
+    ;; If we're preparing to read a second header, check alignment
+    (when align-after
+      (unless (zerop (% data-len 8))
+        (forward-char (- 8 (% data-len 8)))))
     ;; Return list of index entries
     index-entries))
 

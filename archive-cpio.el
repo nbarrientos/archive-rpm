@@ -73,7 +73,7 @@ This function is meant to be used as a :before-until advice for
 (defun archive-cpio--parse-mode (mode)
   "Parse MODE, an integer, and return a permissions string (10 characters)."
   (string
-   (case (logand #o170000 mode)
+   (cl-case (logand #o170000 mode)
      (#o140000 ?s)
      (#o120000 ?l)
      (#o100000 ?-)
@@ -103,7 +103,7 @@ ARCHIVE-BUFFER is nil."
   (let (visual files)
     (goto-char (point-min))
     (while (not (eobp))
-      (assert (zerop (mod (- (point) (point-min)) 4)))
+      (cl-assert (zerop (mod (- (point) (point-min)) 4)))
       (cond
        ((not (looking-at archive-cpio-entry-header-re))
         (error "Unrecognized cpio header format"))

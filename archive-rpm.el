@@ -148,6 +148,15 @@ assumed to be empty."
                          "xz" t t nil "-q" "-c" "-d")))
         (unless (zerop exit-code)
           (error "xz decompression failed: %s" (buffer-string)))))
+     ((equal "zstd" payload-compressor)
+      (insert payload)
+      (let* ((coding-system-for-write 'no-conversion)
+             (coding-system-for-read 'no-conversion)
+             (exit-code (call-process-region
+                         (point-min) (point-max)
+                         "zstd" t t nil "-q" "-c" "-d")))
+        (unless (zerop exit-code)
+          (error "zstd decompression failed: %s" (buffer-string)))))
      (t
       (error "Unknown RPM payload compressor `%s'" payload-compressor)))))
 

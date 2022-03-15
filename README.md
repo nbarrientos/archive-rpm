@@ -1,3 +1,5 @@
+![Tests](https://github.com/nbarrientos/archive-rpm/actions/workflows/test.yml/badge.svg)
+
 # archive-rpm
 Browse RPM and CPIO archives in Emacs with archive-mode
 
@@ -19,3 +21,6 @@ To install these modules, type `M-x package-install-file`, and select
 the _directory_ containing `archive-rpm.el` and `archive-cpio.el`
 (don't select one of the modules themselves!).  After that, any RPM
 files you open should display as some metadata plus a file listing.
+
+To run the test suite make sure that `rpmbuild` is installed on the
+system and run `make test`.

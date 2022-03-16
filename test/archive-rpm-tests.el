@@ -62,7 +62,7 @@
   "Test that the number of files listed is correct."
   (archive-rpm-tests--with-rpm
    "RPMS/gz/package-1-1.noarch.rpm"
-   (should (equal 2 (count-lines archive-file-list-start (point-max))))))
+   (should (equal 2 (count-lines archive-file-list-start archive-file-list-end)))))
 
 (ert-deftest archive-rpm-tests--expected-fields ()
   "Test that all the fields that are RPM metadata are correctly displayed."

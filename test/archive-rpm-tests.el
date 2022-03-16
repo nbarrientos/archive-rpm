@@ -98,5 +98,15 @@
    (should (not (null (archive-rpm-tests--find-field-in-buffer "Compression" "zstd"))))
    (should (not (null (archive-rpm-tests--find-regexp-in-buffer "\\./usr/share/doc/package-1/README\\.md$"))))))
 
+(ert-deftest archive-rpm-tests--can-read-file-contents ()
+  "Test that the contents of the RPMs can be extracted and read."
+  (archive-rpm-tests--with-rpm
+   "RPMS/zstd/package-1-1.noarch.rpm"
+   (goto-char archive-file-list-end)
+   (previous-line)
+   (archive-extract)
+   (should (equal "README.md (package-1-1.noarch.rpm)" (buffer-name)))
+   (should (equal "This is a test\n" (buffer-string)))))
+
 (provide 'archive-rpm-tests)
 ;;; archive-rpm-tests.el ends here

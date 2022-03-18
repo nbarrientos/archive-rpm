@@ -107,7 +107,7 @@ RPM is a patch to the RPM used in the test and BODY the test code."
   (archive-rpm-tests--with-rpm
    "RPMS/zstd/package-1-1.noarch.rpm"
    (goto-char archive-file-list-end)
-   (previous-line)
+   (forward-line -1)
    (archive-extract)
    (should (equal "README.md (package-1-1.noarch.rpm)" (buffer-name)))
    (should (equal "This is a test\n" (buffer-string)))))

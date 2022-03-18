@@ -20,6 +20,13 @@ files.
 metadata prepended to a compressed CPIO archive, so it makes sense to
 implement handling of CPIO archives, and then do RPMs on top of that.)
 
+## History
+
+In March 2022, [MELPA
+switched](https://github.com/melpa/melpa/pull/7945) to this repository
+as source for this package due to the [original
+one](https://github.com/legoscia/archive-rpm) not being maintained.
+
 ## Installation
 
 To install these modules, type `M-x package-install-file`, and select

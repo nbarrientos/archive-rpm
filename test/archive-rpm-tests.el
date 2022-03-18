@@ -45,7 +45,7 @@
 
 (defmacro archive-rpm-tests--with-rpm (rpm &rest body)
   "Helper macro to define a test context.
-RPM is a patch to the RPM used in the test and BODY the test code."
+RPM is a path to the RPM used in the test and BODY the test code."
   `(let ((buffer (find-file-noselect ,rpm)))
      (with-current-buffer buffer
        ,@body)))

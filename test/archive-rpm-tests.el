@@ -31,6 +31,7 @@
 (require 'archive-rpm)
 
 (defun archive-rpm-tests--find-regexp-in-buffer (regexp)
+  "Look for REGEXP in the current buffer."
   (save-excursion
     (goto-char (point-min))
     (search-forward-regexp
@@ -39,15 +40,18 @@
      t)))
 
 (defun archive-rpm-tests--find-field-in-buffer (field value)
+  "Check if FIELD is set to VALUE in the RPM metadata."
   (archive-rpm-tests--find-regexp-in-buffer (format "^%s:[ ]*%s$" field value)))
 
 (defmacro archive-rpm-tests--with-rpm (rpm &rest body)
+  "Helper macro to define a test context.
+RPM is a patch to the RPM used in the test and BODY the test code."
   `(let ((buffer (find-file-noselect ,rpm)))
      (with-current-buffer buffer
        ,@body)))
 
 (ert-deftest archive-rpm-tests--expected-buffer-mode ()
-  "Test that the buffer has archive-mode enabled."
+  "Test that the buffer has `archive-mode' enabled."
   (archive-rpm-tests--with-rpm
    "RPMS/gz/package-1-1.noarch.rpm"
    (should (equal 'archive-mode major-mode))))

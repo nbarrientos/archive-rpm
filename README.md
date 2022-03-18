@@ -1,4 +1,5 @@
 ![Tests](https://github.com/nbarrientos/archive-rpm/actions/workflows/test.yml/badge.svg)
+[![Melpa](https://melpa.org/packages/archive-rpm-badge.svg)](https://melpa.org/#/archive-rpm)
 
 # archive-rpm
 

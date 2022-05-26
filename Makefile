@@ -1,5 +1,5 @@
 .PHONY: rpms rpm-source rpm-clean rpm-zstd rpm-gz rpm-xz \
-	test test-interactive
+	test test-interactive byte-compile
 
 rpms: rpm-clean rpm-source rpm-zstd rpm-gz rpm-xz
 
@@ -27,3 +27,6 @@ test: rpms
 
 test-interactive: rpms
 	make -C test test-interactive
+
+byte-compile:
+	make -C test byte-compile

@@ -31,6 +31,9 @@
 
 ;;; Code:
 
+(require 'arc-mode)
+(require 'cl-lib)
+
 (defconst archive-cpio-entry-header-re
   "07070[12]\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)[[:xdigit:]]\\{8\\}\\|\0+\\'"
   "Regular expression matching a CPIO entry.

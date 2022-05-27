@@ -32,6 +32,7 @@
 
 (require 'archive-cpio)
 (require 'bindat)
+(require 'cl-lib)
 
 ;;;###autoload
 (defun archive-rpm-find-type ()

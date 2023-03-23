@@ -34,6 +34,17 @@
 (require 'arc-mode)
 (require 'cl-lib)
 
+(defgroup archive-cpio-faces ()
+  "Faces defined by archive-cpio."
+  :group 'faces
+  :prefix "archive-cpio-"
+  :tag "Archive CPIO Faces")
+
+(defface archive-cpio-header
+  '((t . (:inherit bold)))
+  "Face for the file listing headers in `archive-mode'."
+  :group 'archive-cpio-faces)
+
 (defconst archive-cpio-entry-header-re
   "07070[12]\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)\\([[:xdigit:]]\\{8\\}\\)[[:xdigit:]]\\{8\\}\\|\0+\\'"
   "Regular expression matching a CPIO entry.
@@ -159,8 +170,16 @@ ARCHIVE-BUFFER is nil."
           (goto-char next)))))
     (with-current-buffer (or archive-buffer (current-buffer))
       (goto-char (point-min))
-      (insert "M   Filemode   Length        UID/GID        File\n")
-      (insert "- ---------- -------- ---------- ---------- -----\n")
+      (insert
+       (propertize
+        "M   Filemode   Length        UID/GID        File\n"
+        'face 'archive-cpio-header
+        'font-lock-face 'archive-cpio-header))
+      (insert
+       (propertize
+        "- ---------- -------- ---------- ---------- -----\n"
+        'face 'archive-cpio-header
+        'font-lock-face 'archive-cpio-header))
       (archive-summarize-files (nreverse visual))
       (apply #'vector (nreverse files)))))
 

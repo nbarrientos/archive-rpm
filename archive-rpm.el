@@ -34,6 +34,17 @@
 (require 'bindat)
 (require 'cl-lib)
 
+(defgroup archive-rpm-faces ()
+  "Faces defined by archive-rpm."
+  :group 'faces
+  :prefix "archive-rpm-"
+  :tag "Archive RPM Faces")
+
+(defface archive-rpm-header
+  '((t . (:inherit font-lock-keyword-face)))
+  "Face for the RPM header name in `archive-mode'."
+  :group 'archive-rpm-faces)
+
 ;;;###autoload
 (defun archive-rpm-find-type ()
   "Return `rpm' if the current buffer contains an RPM archive.
@@ -185,7 +196,10 @@ assumed to be empty."
     (dolist (field archive-rpm--interesting-fields)
       (let ((data (archive-rpm--get-header-data (car field) header-entries)))
         (when (stringp data)
-          (insert (cdr field)
+          (insert (propertize
+                   (cdr field)
+                   'font-lock-face 'archive-rpm-header
+                   'face 'archive-rpm-header)
                   ":"
                   (make-string (+ 1 (- max-field-name-len (length (cdr field)))) ?\s)
                   data

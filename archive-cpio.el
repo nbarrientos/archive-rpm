@@ -120,7 +120,7 @@ ARCHIVE-BUFFER is nil."
                (uid (string-to-number (match-string 3) 16))
                (gid (string-to-number (match-string 4) 16))
                ;; (nlink (string-to-number (match-string 5) 16))
-               ;; (mtime (string-to-number (match-string 6) 16))
+               (mtime (string-to-number (match-string 6) 16))
                (filesize (string-to-number (match-string 7) 16))
                ;; (devmajor (string-to-number (match-string 8) 16))
                ;; (devminor (string-to-number (match-string 9) 16))
@@ -155,14 +155,20 @@ ARCHIVE-BUFFER is nil."
                     (push (vector text (length text-a) (length text)) visual)
                     (push (vector name name nil mode filebeg) files))
                 (push (archive--file-summary text (length text-a) (length text)) visual)
-                (push (archive--file-desc name name mode filesize nil :pos filebeg) files))))
+                (push (archive--file-desc
+                       name name mode filesize
+                       (format-time-string "%c" mtime) :pos filebeg :uid uid :gid gid)
+                      files))))
           (goto-char next)))))
     (with-current-buffer (or archive-buffer (current-buffer))
       (goto-char (point-min))
       (insert "M   Filemode   Length        UID/GID        File\n")
       (insert "- ---------- -------- ---------- ---------- -----\n")
       (archive-summarize-files (nreverse visual))
-      (apply #'vector (nreverse files)))))
+      (if (< emacs-major-version 28)
+          (apply #'vector (nreverse files))
+          (archive--summarize-descs (nreverse files)))
+      )))
 
 (defun archive-cpio-extract (archive name)
   "Open the CPIO file ARCHIVE and extract NAME into the current buffer.
